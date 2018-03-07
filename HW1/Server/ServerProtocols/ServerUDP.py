@@ -1,33 +1,61 @@
 
 import socketserver as SocketServer, threading, time
 
+#####
+ZERO = 0
+ONE = 1 
+ACK = "ACK"
+TIME_OUT = 0.2
+####
+
+
 class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
     def handle(self):
-        data = self.request[0].strip()
         socket = self.request[1]
         current_thread = threading.current_thread()
         if self.server.mechanism=="STREAM":
-            pass
-            #print("{}: client: {}, wrote: {}".format(current_thread.name, self.client_address, data))
-            self.server.total_messages += 1
-            self.server.total_bytes += len(data)
+               while True:
+                    # Receive response
+                #print('\nWaiting to receive..')
+                try:
+                    data, _ = socket.recvfrom(self.server.prefix_size)
+                except Exception as err:
+                    print(err)
+                    continue
+                if not data:
+                    break
+                else:
+                    self.server.total_messages += 1
+                    self.server.total_bytes += len(data)
+
         elif self.server.mechanism=="STOP":
-            #print("{}: client: {}, wrote: {}".format(current_thread.name, self.client_address, data))
-            self.server.total_messages += 1
-            self.server.total_bytes += len(data)
-            socket.sendto(bytes("ACK","utf-8"), self.client_address)
+            while True:
+                # Receive response
+                #print('\nWaiting to receive..')
+                try:
+                    data, _ = socket.recvfrom(self.server.prefix_size)
+                except Exception as err:
+                    print(err)
+                    continue
+                if not data:
+                    break
+                else:
+                    self.server.total_messages += 1
+                    self.server.total_bytes += len(data)
+                    socket.sendto(bytes("ACK","utf-8"), self.client_address)
 
         
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
       pass  
 
-def start(host,port,mechanism):
+def start(host,port,mechanism, prefix_size):
 
             server = ThreadedUDPServer((host, port), ThreadedUDPRequestHandler)
             server.mechanism = mechanism
-            server.total_bytes = 0
-            server.total_messages = 0
+            server.total_bytes = ZERO
+            server.total_messages = ZERO
+            server.prefix_size = prefix_size
             server_thread = threading.Thread(target=server.serve_forever)
             server_thread.daemon = True
             try:

@@ -1,1 +1,0 @@
-https://stackoverflow.com/questions/20007319/how-to-do-a-large-text-file-transfer-in-python?rq=1
