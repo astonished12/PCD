@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 import TCP.tcpClient as Client
 
 #####
@@ -37,18 +38,32 @@ class ThreadedServerTCP(object):
             self.sock.close()
 
     def receive_data_streaming(self, client, resend):
+        print("Voi primi cate ", self.prefix_size)
         while True:
             try:
                 data = client.recv(self.prefix_size)
-                print(data)
                 if data:
                     if resend:
                         self.client.send_partial_data(data)
-                    self.total_messages += ONE
-                    self.total_bytes += len(data)
-                else:
-                    raise error('Client disconnected')
-            except:
+                    else:
+                        data = data[0:48].decode("utf-8")
+                        current_time = time.time()
+
+                        time_c_start_send_to_d_start = data[0:16]
+                        time_elapsed_from_c_to_d = current_time-float(time_c_start_send_to_d_start)
+
+                        time_b_start_send_to_c = data[16:32]
+                        time_elapsed_from_b_to_c = float(time_c_start_send_to_d_start)-float(time_b_start_send_to_c)
+
+                        time_a_send_to_b = data[32:48]
+                        time_elapsed_from_a_to_b = float(time_b_start_send_to_c)-float(time_a_send_to_b)
+                        print(str(time_elapsed_from_c_to_d)+" "+str(time_elapsed_from_b_to_c)+" "+str(time_elapsed_from_a_to_b))
+
+                        self.total_messages += ONE
+                        self.total_bytes += len(data)
+
+            except Exception as e:
+                print(e)
                 client.close()
                 return False
 

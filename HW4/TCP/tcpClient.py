@@ -1,4 +1,6 @@
 import socket
+import time
+
 
 
 # Create a TCP/IP socket
@@ -18,24 +20,31 @@ class ClientTCP(object):
         self.sock.connect(self.server_address)
         self.prefix_size = prefix_size
 
-    def send_data_streaming(self, filename):
+    def send_data_streaming(self, number_iter):
         total_messages = ZERO
         total_bytes = ZERO
+        i = 0
         try:
             # Send data
-            with open(filename, 'rb') as f:
-                bytes_to_send = f.read(self.prefix_size)
-                while bytes_to_send:
-                    self.sock.send(bytes_to_send)
-                    total_messages += ONE
-                    total_bytes += len(bytes_to_send)
-                    bytes_to_send = f.read(self.prefix_size)
+            while i < number_iter:
+                curr_time = time.time()
+                bytess = bytes(str(curr_time)[0:16], 'utf-8')
+                print(bytess)
+                self.sock.send(bytess)
+                total_messages += ONE
+                i += 1
+        except Exception as e:
+            print(e)
+
         finally:
             return total_messages, total_bytes
             pass
 
     def send_partial_data(self, data_binary):
-        self.sock.send(data_binary)
+        print(data_binary)
+        bytess = bytes(str(time.time())[0:16], 'utf-8')
+        bytess += data_binary
+        self.sock.send(bytess)
 
 
 

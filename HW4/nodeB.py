@@ -1,16 +1,10 @@
 import TCP.tcpServer as Server
 import TCP.tcpClient as Client
-
-
-IP_ADDRESS = "localhost"
-PORT = 2000
-
-IP_ADDRESS_TO_CONNECT = "34.217.75.237"
-PORT_TO_CONNECT = 2001
+import TCP.config as Config
 
 
 def main():
-    server = Server.ThreadedServerTCP(IP_ADDRESS, PORT, 2048, IP_ADDRESS_TO_CONNECT, PORT_TO_CONNECT)
+    server = Server.ThreadedServerTCP(Config.localhost, Config.node_B_PORT, Config.padding_B, Config.node_C_IP_ADDRESS, Config.node_C_PORT)
     server.listen()
 
 
