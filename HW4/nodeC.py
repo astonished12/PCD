@@ -5,7 +5,7 @@ import TCP.tcpClient as Client
 IP_ADDRESS = "localhost"
 PORT = 2001
 
-IP_ADDRESS_TO_CONNECT = "localhost"
+IP_ADDRESS_TO_CONNECT = "18.237.90.27"
 PORT_TO_CONNECT = 2002
 
 

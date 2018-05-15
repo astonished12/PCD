@@ -7,8 +7,8 @@ TMP_FILE_PATH = "./data.log"
 MAX_FILE_SIZE = 100
 MIN_FILE_SIZE = 5
 
-IP_ADDRESS_TO_CONNECT = "localhost"
-PORT = 2000
+IP_ADDRESS_TO_CONNECT = "54.213.227.231"
+PORT = 2002
 
 COMMAND = "dd if=/dev/urandom of=data.log bs=1M count='%d'"
 
