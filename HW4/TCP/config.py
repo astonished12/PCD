@@ -13,7 +13,8 @@ node_C_PORT = 2001
 node_D_IP_ADDRESS = "54.245.192.90"
 node_D_PORT = 2002
 
-padding_B = 16
-padding_C = 32
-padding_D = 48
-
+packer_format_node_B = "!i d 12s"
+packer_format_node_C = "!i d 12s d 12s"
+packer_format_node_D = "!i d 12s d 12s d 12s"
+packer_prefix = " d 12s"
+packer_rtt = "!i d d d"
