@@ -13,10 +13,11 @@ ONE = 1
 
 class ThreadedServerTCP(object):
 
-    def __init__(self, host, port, format_pack, conn_address=None, conn_port=None):
+    def __init__(self, host, port, format_pack, logger, conn_address=None, conn_port=None, db_manager=None):
         self.host = host
         self.port = port
         self.format_pack = format_pack
+        self.logger = logger
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, ONE)
         self.sock.bind((self.host, self.port))
@@ -25,6 +26,10 @@ class ThreadedServerTCP(object):
         if conn_address is not None and conn_port is not None:
             self.is_client_too = True
             self.client = Client.ClientTCP(conn_address, conn_port, self.format_pack)
+        if db_manager is not None:
+            self.db_manager = db_manager
+            self.rtt_values = []
+            self.delays_values = []
 
     def listen(self):
         self.sock.listen(5)
@@ -67,7 +72,13 @@ class ThreadedServerTCP(object):
                         self.client.redirect_rtt(pack)
                         break
                     else:
-                        print("rtt :"+str(data[1])+ " "+str(data[2])+" "+str(data[3]))
+                        receive_rtt_values_row = list()
+                        print("rtt :"+str(data[1]) + " "+str(data[2])+" "+str(data[3]))
+                        receive_rtt_values_row.append(str(data[1]))
+                        receive_rtt_values_row.append(str(data[2]))
+                        receive_rtt_values_row.append(str(data[3]))
+                        self.rtt_values.append(receive_rtt_values_row)
+
                         break
 
             except Exception as e:
@@ -81,6 +92,12 @@ class ThreadedServerTCP(object):
                 if pack:
                     data = packer_tcp_packs.unpack(pack)
                     data = list(data)
+
+                    if data[0] == 3: #stop receive packets
+                        if resend:
+                            self.client.redirect_pack_data(pack)
+                        else:
+                            break
 
                     if data[0] == 0:
                         if resend:
@@ -101,12 +118,31 @@ class ThreadedServerTCP(object):
 
                             time_a_send_to_b = data[1]
                             time_elapsed_from_a_to_b = float(time_b_start_send_to_c)-float(time_a_send_to_b)
+
+                            total = time_elapsed_from_a_to_b+time_elapsed_from_b_to_c+time_elapsed_from_c_to_d
+
                             print(ip_address__a+" "+ip_address__d+" "+str(time_elapsed_from_a_to_b)+" "+str(time_elapsed_from_b_to_c)+" "+str(time_elapsed_from_c_to_d))
 
+                            receive_delays_values_row = list()
+                            receive_delays_values_row.append(ip_address__a)
+                            receive_delays_values_row.append(ip_address__b)
+                            receive_delays_values_row.append(str(time_elapsed_from_a_to_b))
+                            receive_delays_values_row.append(str(time_elapsed_from_b_to_c))
+                            receive_delays_values_row.append(str(time_elapsed_from_c_to_d))
+                            receive_delays_values_row.append(str(total))
+
+                            self.delays_values.append(receive_delays_values_row)
             except Exception as e:
                 print(e)
                 client.close()
                 return False
+
+        print("GO AND INSERT")
+        for row in self.rtt_values:
+            self.db_manager.insert_data_into_rtts_table(row[0], row[1], row[2])
+
+        for row in self.delays_values:
+            self.db_manager.insert_data_into_delays_table(row[0], row[1], row[2], row[3], row[4], row[5])
 
     def listen_to_client(self, client, address):
         print("Client connected")

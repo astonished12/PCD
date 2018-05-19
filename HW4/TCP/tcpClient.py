@@ -30,6 +30,9 @@ class ClientTCP(object):
                 self.sock.send(pack)
                 i += 1
 
+            pack = self.packer_obj.pack(3, time.time(), self.server_address[0].encode("utf-8"))
+            self.sock.send(pack)
+
         except Exception as e:
             print(e)
 

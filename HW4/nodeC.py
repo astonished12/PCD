@@ -3,7 +3,8 @@ import TCP.config as Config
 
 
 def main():
-    server = Server.ThreadedServerTCP(Config.localhost, Config.node_C_PORT, Config.packer_format_node_C, Config.localhost, Config.node_D_PORT)
+    node__c_logger = Config.make_logger("nodeC")
+    server = Server.ThreadedServerTCP(Config.localhost, Config.node_C_PORT, Config.packer_format_node_C, node__c_logger, Config.localhost, Config.node_D_PORT)
     server.listen()
 
 
