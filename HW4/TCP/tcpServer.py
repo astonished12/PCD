@@ -42,7 +42,7 @@ class ThreadedServerTCP(object):
             self.sock.close()
 
     def analyzer_network_traffic(self, client, resend):
-        print("Format packul este ", self.format_pack)
+        self.logger.info("Format packul este "+ str(self.format_pack))
         packer_tcp_packs = struct.Struct(self.format_pack)
         packer_tcp_rtt = struct.Struct(Config.packer_rtt)
         while True:
@@ -53,6 +53,7 @@ class ThreadedServerTCP(object):
                     data = list(data)
 
                     if data[0] == 1:
+                        self.logger.debug("Send back ack for rtt computing ")
                         client.send(bytes("ACK", "utf-8"))
                         break
             except Exception as e:
@@ -73,7 +74,7 @@ class ThreadedServerTCP(object):
                         break
                     else:
                         receive_rtt_values_row = list()
-                        print("rtt :"+str(data[1]) + " "+str(data[2])+" "+str(data[3]))
+                        self.logger.debug("rtt :"+str(data[1]) + " "+str(data[2])+" "+str(data[3]))
                         receive_rtt_values_row.append(str(data[1]))
                         receive_rtt_values_row.append(str(data[2]))
                         receive_rtt_values_row.append(str(data[3]))
@@ -121,7 +122,7 @@ class ThreadedServerTCP(object):
 
                             total = time_elapsed_from_a_to_b+time_elapsed_from_b_to_c+time_elapsed_from_c_to_d
 
-                            print(ip_address__a+" "+ip_address__d+" "+str(time_elapsed_from_a_to_b)+" "+str(time_elapsed_from_b_to_c)+" "+str(time_elapsed_from_c_to_d))
+                            self.logger.debug(ip_address__a+" "+ip_address__d+" "+str(time_elapsed_from_a_to_b)+" "+str(time_elapsed_from_b_to_c)+" "+str(time_elapsed_from_c_to_d))
 
                             receive_delays_values_row = list()
                             receive_delays_values_row.append(ip_address__a)
@@ -137,7 +138,7 @@ class ThreadedServerTCP(object):
                 client.close()
                 return False
 
-        print("GO AND INSERT")
+        self.logger.debug("GO AND INSERT")
         for row in self.rtt_values:
             self.db_manager.insert_data_into_rtts_table(row[0], row[1], row[2])
 
@@ -145,7 +146,7 @@ class ThreadedServerTCP(object):
             self.db_manager.insert_data_into_delays_table(row[0], row[1], row[2], row[3], row[4], row[5])
 
     def listen_to_client(self, client, address):
-        print("Client connected")
+        self.logger.info("Client connected")
         self.analyzer_network_traffic(client, self.is_client_too)
 
 

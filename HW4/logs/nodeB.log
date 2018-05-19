@@ -1,1 +1,5 @@
 2018-05-19 13:10:58,286 DEBUG While this is just chatty
+2018-05-19 13:24:15,631 INFO Format packul este !i d 12s
+2018-05-19 13:29:52,677 INFO Client connected
+2018-05-19 13:29:52,678 INFO Format packul este !i d 12s
+2018-05-19 13:29:52,678 DEBUG Send back ack for rtt computing 
